@@ -10,3 +10,7 @@ export default function App(){
     </>
   )
 }
+
+// //1)Spacing
+// 2)Number 1 ke baad hi operator ho and number 2 ke baad operator na ho
+// 3)Bracket introduction
