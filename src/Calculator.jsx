@@ -1,26 +1,32 @@
-import React, { useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
+
+
+//state maintainance and few more edge cases for us to be worked on => re render of few states during re execution of the code 
+// operator overloading to be worked on 
 
 export default function Calculator() {
 
-    const [inputValue, setInputValue] = useState("");
+  const [inputValue, setInputValue] = useState("");
   const numbers = typeof inputValue === "string"
-  ? inputValue.match(/\b(?:\d+(\.\d+)?|pi|e)\b/gi)?.map(val => {
+    ? inputValue.match(/\b(?:\d+(\.\d+)?|pi|e)\b/gi)?.map(val => {
       if (/^pi$/i.test(val)) return Math.PI;
       if (/^e$/i.test(val)) return Math.E;
       return parseFloat(val);
     }) || []
-  : [];
+    : [];
 
 
   const numberOne = !numbers ? "" : numbers[0];
   const numberTwo = !numbers ? "" : numbers[1];
 
 
-
   const operationRegex = /(sqrt|sin|cos|tan|log|ln|exp|pi|e|\+|\-|\*|\/|\.|\!|\^)/;
-const operation = typeof inputValue === "string"
-  ? inputValue.match(/(sqrt|sin|cos|tan|log|ln|exp|pi|e|\+|\-|\*|\/|\.|\!|\^)/g)?.[0] || ""
-  : "";
+  const operation = useMemo(() => {
+    return typeof inputValue === "string"
+      ? inputValue.match(/(sqrt|sin|cos|tan|log|ln|exp|pi|e|\+|\-|\*|\/|\.|\!|\^)/g)?.[0] || ""
+      : ""
+  }, [inputValue])
+
 
 
 
@@ -28,6 +34,7 @@ const operation = typeof inputValue === "string"
     // debugger
     const value = e.target.innerText;
     setInputValue((prev) => prev + value)
+    // console.log(prev);
 
     // const inputField = document.querySelector('input[type="text"]');
     // if (value === 'AC') {
@@ -46,36 +53,38 @@ const operation = typeof inputValue === "string"
   }
 
 
-  const onClickHandleClear = () => {
+  const onClickHandleClear = useCallback(() => {
     setInputValue("")
-  }
-  const onClickHandleClearLastInput = () => {
+  }, [])
+
+  const onClickHandleClearLastInput = useCallback(() => {
     setInputValue(inputValue.slice(0, -1));
-  }
+  }, [inputValue])
 
   const onClickAddOperation = () => {
-    debugger;
-    if(!numberOne){
+    // debugger;
+    if (!numberOne) {
       //input desabled
       alert("Please enter a number first")
       return;
     }
     console.log(operation)
-     
-  
+
+
     setInputValue(prev => {
       const lastChar = prev[prev.length - 1];
       //using lopping to eliminate all previous operatioins and append + after the last number 
-      
+
       if (operationRegex.test(lastChar)) {
         return prev.slice(0, -1) + "+";
       }
-      
-      return(prev + "+")})
+
+      return (prev + "+")
+    })
   }
 
   const onClickSubstractOperation = () => {
-      if(!numberOne){
+    if (!numberOne) {
       //input desabled
       alert("Please enter a number first")
       return;
@@ -83,7 +92,7 @@ const operation = typeof inputValue === "string"
     setInputValue(prev => prev + "-")
   }
   const onClickMultiplyOperation = () => {
-    if(!numberOne){
+    if (!numberOne) {
       //input desabled
       alert("Please enter a number first")
       return;
@@ -91,20 +100,22 @@ const operation = typeof inputValue === "string"
     setInputValue(prev => prev + "*")
   }
   const onClickDivideOperation = () => {
-      if(!numberOne){
+    if (!numberOne) {
       //input desabled
       alert("Please enter a number first")
       return;
     }
     setInputValue(prev => prev + "/")
   }
-  const onClickSquareRootOperation = () => {
 
+  const onClickSquareRootOperation = () => {
     setInputValue(prev => "sqrt" + prev)
   }
+
   const onClickSinOperation = () => {
     setInputValue(prev => "sin" + prev)
   }
+  
   const onClickCosOperation = () => {
     setInputValue(prev => "cos" + prev)
   }
@@ -132,62 +143,53 @@ const operation = typeof inputValue === "string"
   const onClickFactorialOperation = () => {
     setInputValue(prev => prev + "!")
   }
-  
+
 
   const onClickOutput = () => {
-    
 
-    
+
+
     console.log({ numberOne, numberTwo, operationRegex, inputValue })
     //switch case for operation
-   // debugger;
+    // debugger;
     switch (operation) {
       case '+':
-          if(!numberOne)
-          {
-            //input desabled
-            alert("Please enter First Number")
-            return;
-          }
-          else if(!numberTwo)
-          {
-            //input desabled
-            alert("Please enter Second Number")
-            return;
-          }
-          else if(numberOne === "" && numberTwo === "")
-          {
-            //input desabled
-            alert("Please enter a number first")
-            return;
-          }
-          else
-          {
-            let temResult = Number(numberOne) + Number(numberTwo);
-            temResult=String(temResult)
-            setInputValue(temResult)
-            console.log(temResult)
-            
-          
+        if (!numberOne) {
+          alert("Please enter First Number");
+          return;
+        } else if (!numberTwo) {
+          alert("Please enter Second Number");
+          return;
+        } else {
+          let temResult = Number(numberOne) + Number(numberTwo);
+          //by making var this is possible 
+          // numberOne=temResult
+          temResult = String(temResult);
+          setInputValue(temResult);
+          // This updates inputValue, which updates numbers and numberOne
+          // Optionally: reset other states if needed
           break;
-          }
-          
-        
-      
+        }
 
-        
+
+
+
       case '-':
         let temResulti = Number(numberOne) - Number(numberTwo);
         setInputValue(temResulti)
         break;
       case '*':
         let temResultin = Number(numberOne) * Number(numberTwo);
-        temResultin=String(temResultin)
+        temResultin = String(temResultin)
         setInputValue(temResultin)
         break;
       case '/':
         let temResultini = Number(numberOne) / Number(numberTwo);
         setInputValue(temResultini)
+
+
+
+
         break;
       case 'sqrt':
         let temResultinin = Math.sqrt(Number(numberOne));
